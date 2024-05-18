@@ -12,7 +12,8 @@
     <div class="container mt-4">
         <input class="btn btn-primary form-control" type="file" id="fileInput" accept=".xlsx">
         <div class="d-flex mt-2">
-            <input type="text" id="searchInput" placeholder="Digite para buscar" class="form-control me-2 border border-primary">
+            <input type="text" id="searchInput" placeholder="Digite para buscar"
+                class="form-control me-2 border border-primary">
             <button type="button" id="searchButton" class="btn btn-primary">Buscar</button>
         </div>
         <pre id="jsonOutput"></pre>
@@ -32,6 +33,8 @@
                 </div>
                 <div class="modal-footer bg-primary">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-primary" id="editButton">Editar</button>
+                    <button type="button" class="btn btn-success d-none" id="saveChangesButton">Salvar</button>
                 </div>
             </div>
         </div>
@@ -46,11 +49,16 @@
             const searchButton = document.getElementById('searchButton');
             const modalTitle = document.querySelector('.modal-title');
             const modalBody = document.querySelector('.modal-body');
+            const editButton = document.getElementById('editButton');
+            const saveChangesButton = document.getElementById('saveChangesButton');
 
             let jsonData = []; // Variável global para armazenar os dados do Excel
+            let currentCardIndex = null; // Índice do card atualmente aberto no modal
+            let originalFileName = ''; // Variável para armazenar o nome do arquivo original
 
             fileInput.addEventListener('change', function (e) {
                 const file = e.target.files[0];
+                originalFileName = file.name; // Salva o nome do arquivo original
                 const reader = new FileReader();
                 reader.onload = function (e) {
                     const data = new Uint8Array(e.target.result);
@@ -117,6 +125,7 @@
                 cardButtons.forEach(button => {
                     button.addEventListener('click', function () {
                         const cardIndex = button.getAttribute('data-card-index'); // Índice do card na lista de dados
+                        currentCardIndex = cardIndex; // Salvar o índice do card atual
                         const cardData = data[cardIndex]; // Dados do card clicado
 
                         // Atualizar o conteúdo do modal com as informações do card
@@ -134,15 +143,50 @@
                                         ${headers.map((header, index) => `
                                             <tr>
                                                 <th>${header}</th>
-                                                <td>${cardData[index] !== undefined ? cardData[index] : ''}</td>
+                                                <td><input type="text" class="form-control border border-0" value="${cardData[index] !== undefined ? cardData[index] : ''}" data-header-index="${index}" readonly></td>
                                             </tr>
                                         `).join('')}
                                     </tbody>
                                 </table>
                             </div>`;
+                        editButton.classList.remove('d-none');
+                        saveChangesButton.classList.add('d-none');
                     });
                 });
             }
+
+            // Evento de clique para o botão de editar no modal
+            editButton.addEventListener('click', function () {
+                const inputs = modalBody.querySelectorAll('input[data-header-index]');
+                inputs.forEach(input => {
+                    input.removeAttribute('readonly');
+                });
+                editButton.classList.add('d-none');
+                saveChangesButton.classList.remove('d-none');
+            });
+
+            // Evento de clique para o botão de salvar no modal
+            saveChangesButton.addEventListener('click', function () {
+                const inputs = modalBody.querySelectorAll('input[data-header-index]');
+                inputs.forEach(input => {
+                    const index = input.getAttribute('data-header-index');
+                    jsonData[currentCardIndex][index] = input.value; // Atualizar os dados com os valores do modal
+                });
+
+                // Re-exibir os dados atualizados
+                displayData(jsonData);
+
+                // Fechar o modal
+                const modalElement = document.querySelector('#exampleModal');
+                const modal = bootstrap.Modal.getInstance(modalElement);
+                modal.hide();
+
+                // Salvar a planilha atualizada com o mesmo nome do arquivo original
+                const newSheet = XLSX.utils.aoa_to_sheet(jsonData);
+                const newWorkbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(newWorkbook, newSheet, 'Sheet1');
+                XLSX.writeFile(newWorkbook, originalFileName);
+            });
         });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
