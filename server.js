@@ -13,6 +13,9 @@ const port = process.env.PORT || 3000;
 
 const FILES_DIR = 'C:\\Users\\tanck\\OneDrive\\Área de Trabalho\\projetos';
 
+// Middleware para lidar com JSON no corpo da requisição
+app.use(express.json());
+
 // Endpoint da API que retorna uma mensagem simples
 app.get('/api/message', (req, res) => {
     res.json({ message: 'Olá, esta é uma mensagem da API!' });
@@ -44,6 +47,38 @@ app.get('/api/file/:filename', async (req, res) => {
         res.status(500).send('Erro ao ler o arquivo');
     }
 });
+
+app.post('/api/file/:filename', async (req, res) => {
+    try {
+        const { filename } = req.params;
+        const { data } = req.body; // Espera-se os dados editados no corpo da requisição
+
+        if (!data) {
+            return res.status(400).send('Dados editados ausentes na requisição');
+        }
+
+        const filePath = path.join(FILES_DIR, filename);
+        await fs.writeFile(filePath, JSON.stringify(data, null, 2)); // Pretty-printed JSON
+        res.send('Dados salvos com sucesso!');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Erro ao salvar o arquivo');
+    }
+});
+
+// Certifique-se de que o diretório de dados exista (se necessário)
+(async () => {
+    try {
+        await fs.access(FILES_DIR);
+    } catch (err) {
+        if (err.code === 'ENOENT') {
+            console.log('Diretório de dados não encontrado. Criando...');
+            await fs.mkdir(FILES_DIR);
+        } else {
+            console.error('Erro ao acessar o diretório de dados:', err);
+        }
+    }
+})();
 
 // Rota para servir o index.html
 app.get('*', (req, res) => {
