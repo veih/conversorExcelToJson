@@ -153,8 +153,8 @@
                                 <table class="table table-bordered">
                                     <thead class="thead-dark">
                                         <tr>
-                                            <th>Campo</th>
-                                            <th>Valor</th>
+                                            ${Object.keys(cardData[0]).map((key) =>
+                            `<th>${key}</th>`)}
                                         </tr>
                                     </thead>
                                     <tbody>
