@@ -11,7 +11,7 @@ const __dirname = dirname(__filename);
 const app = express();
 const port = process.env.PORT || 3000;
 
-const FILES_DIR = 'C:\\Users\\tanck\\OneDrive\\Área de Trabalho\\projetos';
+const FILES_DIR = 'C:\\Users\\RMSF_SDAI\\OneDrive\\Analistas\\SCP';
 
 // Middleware para lidar com JSON no corpo da requisição
 app.use(express.json());
