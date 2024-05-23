@@ -12,8 +12,8 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
-            <a class="navbar-brand" id="searchButton" href="#">Exibição de Dados</a>
-            <button class="navbar-toggler" id="infoButton" type="button" data-bs-toggle="collapse"
+            <a class="navbar-brand" id="loadButtonScp" href="#">SCP</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                 data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
                 aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -21,19 +21,31 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="#">Página Inicial</a>
+                        <a class="nav-link active" id="loadButtonSca" aria-current="page" href="#">SCA</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#exampleModal" data-bs-toggle="modal"
-                            data-bs-target="#exampleModal">Informações</a>
+                        <a class="nav-link active" id="loadButtonSdai" aria-current="page" href="#">SDAI</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="loadButtonGestal" href="#" aria-current="page">GESTAL</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">Dropdown</a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="#">Action</a></li>
+                            <li><a class="dropdown-item" href="#">Another action</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="#">Something else here</a></li>
+                        </ul>
                     </li>
                 </ul>
                 <form class="d-flex">
-                    <div class="d-flex mt-2" id="fileButton">
-                        <input type="text" id="searchInput" placeholder="Digite para buscar"
-                            class="form-control me-2 border border-primary">
-                        <button type="button" id="searchButton" class="btn btn-primary">Buscar</button>
-                    </div>
+                    <input type="text" id="searchInput" placeholder="Digite para buscar"
+                        class="form-control me-2 border border-primary">
+                    <button type="button" id="searchButton" class="btn btn-primary">Buscar</button>
                 </form>
             </div>
         </div>
@@ -69,6 +81,12 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.17.1/dist/xlsx.full.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+
+            const loadButtonScp = document.getElementById('loadButtonScp');
+            const loadButtonSca = document.getElementById('loadButtonSca');
+            const loadButtonSdai = document.getElementById('loadButtonSdai');
+            const loadButtonGestal = document.getElementById('loadButtonGestal');
+
             const fileButton = document.getElementById('fileButton');
             const tableOutput = document.getElementById('tableOutput');
             const searchInput = document.getElementById('searchInput');
@@ -84,8 +102,31 @@
 
             // Função para buscar o arquivo Excel da API
             async function fetchExcelFile() {
+                const filenamescp = 'MANUTENÇAO_LOJAS_ATUALIZADA 0.1.xlsx'; // Substitua pelo nome do arquivo que você deseja ler
+                const url = `http://localhost:3000/api/file/${filenamescp}`;
+
                 try {
-                    const response = await fetch('/api/file/cliente%20veronica.xlsx');
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error('Erro ao buscar o arquivo');
+                    }
+                    const data = await response.arrayBuffer();
+                    const workbook = XLSX.read(new Uint8Array(data), { type: 'array' });
+                    const sheetName = workbook.SheetNames[0];
+                    const sheet = workbook.Sheets[sheetName];
+                    jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+                    displayData(jsonData);
+                } catch (error) {
+                    console.error('Erro ao carregar o arquivo Excel:', error);
+                }
+            }
+
+            async function fetchExcelFileSca() {
+                const filenamesca = 'CONTROLE DE ACESSO ESCADAS DE EMERGÊNCIA.xlsx'; // Substitua pelo nome do arquivo que você deseja ler
+                const url = `http://localhost:3000/api/file/sca/${filenamesca}`;
+
+                try {
+                    const response = await fetch(url);
                     if (!response.ok) {
                         throw new Error('Erro ao buscar o arquivo');
                     }
@@ -116,6 +157,12 @@
                 );
                 displayData([jsonData[0], ...filteredData]); // Mantém o cabeçalho e adiciona os dados filtrados
             }
+
+            loadButtonScp.addEventListener('click', () => fetchExcelFile('data', 'SCP.xlsx'));
+            loadButtonSca.addEventListener('click', () => fetchExcelFileSca('data', 'SCA.xlsx'));
+            loadButtonSdai.addEventListener('click', () => fetchExcelFile('data', 'SDAI.xlsx'));
+            loadButtonGestal.addEventListener('click', () => fetchExcelFile('data', 'GESTAL.xlsx'));
+
 
             // Função para exibir os dados na tabela de cards
             function displayData(data) {
@@ -214,7 +261,7 @@
             });
 
             // Carregar o arquivo Excel automaticamente ao carregar a página
-            fetchExcelFile();
+            // fetchExcelFile();
         });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"

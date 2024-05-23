@@ -11,9 +11,8 @@ const __dirname = dirname(__filename);
 const app = express();
 const port = process.env.PORT || 3000;
 
-//const FILES_DIR = 'C:\\Users\\RMSF_SDAI\\OneDrive\\Analistas\\SCP';
-//const FILES_DIR = 'C:\\Users\\tanck\\OneDrive\\Área de Trabalho\\projetos';
-const FILES_DIR = 'C:\\Users\\tanck\\OneDrive\\Área de Trabalho\\projetos';
+const FILES_DIR = 'C:\\Users\\RMSF_SDAI\\OneDrive\\Analistas\\SCP';
+const FILES_DIR_SCA = 'C:\\Users\\RMSF_SDAI\\OneDrive\\Analistas\\SCA';
 
 // Middleware para lidar com JSON no corpo da requisição
 app.use(express.json());
@@ -45,18 +44,21 @@ async function listAllFiles(dir) {
 
 app.get('/api/files', async (req, res) => {
     try {
-
         const filenames = await fs.readdir(FILES_DIR);
+        const filenamesSCA = await fs.readdir(FILES_DIR_SCA);
 
-        if (!filenames.length) {
-            return res.status(404).send('No files found in the specified directory.');
+        if (!filenames.length && !filenamesSCA.length) {
+            return res.status(404).send('No files found in the specified directories.');
         }
 
         const fileData = await Promise.all(
-            filenames.map(async (filename) => ({
-                filename,
-                content: await fs.readFile(path.join(FILES_DIR, filename), 'utf8'), // Read content with encoding
-            }))
+            filenames.concat(filenamesSCA).map(async (filename) => {
+                const dir = filenames.includes(filename) ? FILES_DIR : FILES_DIR_SCA;
+                return {
+                    filename,
+                    content: await fs.readFile(path.join(dir, filename), 'utf8'), // Read content with encoding
+                };
+            })
         );
 
         res.json(fileData);
@@ -66,11 +68,34 @@ app.get('/api/files', async (req, res) => {
     }
 });
 
-// Rota para servir um arquivo específico da pasta
+// Rota para servir um arquivo específico da pasta SCP
 app.get('/api/file/:filename', async (req, res) => {
     try {
         const { filename } = req.params;
+
+        if (!filename) {
+            return res.status(400).send('Filename is required');
+        }
+
         const filePath = path.join(FILES_DIR, filename);
+        const fileContent = await fs.readFile(filePath);
+        res.send(fileContent);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Erro ao ler o arquivo');
+    }
+});
+
+// Rota para servir um arquivo específico da pasta SCA
+app.get('/api/file/sca/:filenamesca', async (req, res) => {
+    try {
+        const { filenamesca } = req.params;
+
+        if (!filenamesca) {
+            return res.status(400).send('Filename is required');
+        }
+
+        const filePath = path.join(FILES_DIR_SCA, filenamesca);
         const fileContent = await fs.readFile(filePath);
         res.send(fileContent);
     } catch (err) {
@@ -82,10 +107,14 @@ app.get('/api/file/:filename', async (req, res) => {
 app.post('/api/file/:filename', async (req, res) => {
     try {
         const { filename } = req.params;
-        const { data } = req.body; // Espera-se os dados editados no corpo da requisição
+        const data = req.body; // Espera-se os dados editados no corpo da requisição
 
         if (!data) {
             return res.status(400).send('Dados editados ausentes na requisição');
+        }
+
+        if (!filename) {
+            return res.status(400).send('Filename is required');
         }
 
         const filePath = path.join(FILES_DIR, filename);
@@ -101,10 +130,12 @@ app.post('/api/file/:filename', async (req, res) => {
 (async () => {
     try {
         await fs.access(FILES_DIR);
+        await fs.access(FILES_DIR_SCA);
     } catch (err) {
         if (err.code === 'ENOENT') {
             console.log('Diretório de dados não encontrado. Criando...');
-            await fs.mkdir(FILES_DIR);
+            await fs.mkdir(FILES_DIR, { recursive: true });
+            await fs.mkdir(FILES_DIR_SCA, { recursive: true });
         } else {
             console.error('Erro ao acessar o diretório de dados:', err);
         }
