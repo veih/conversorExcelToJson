@@ -85,8 +85,7 @@
             // Função para buscar o arquivo Excel da API
             async function fetchExcelFile() {
                 try {
-                    const response = await fetch('/api/file/MANUTENÇAO_LOJAS_ATUALIZADA 0.1.xlsx');
-                    
+                    const response = await fetch('/api/file/cliente%20veronica.xlsx');
                     if (!response.ok) {
                         throw new Error('Erro ao buscar o arquivo');
                     }
@@ -154,8 +153,8 @@
                                 <table class="table table-bordered">
                                     <thead class="thead-dark">
                                         <tr>
-                                            <th>Campo</th>
-                                            <th>Valor</th>
+                                            ${Object.keys(cardData[0]).map((key) =>
+                            `<th>${key}</th>`)}
                                         </tr>
                                     </thead>
                                     <tbody>

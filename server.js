@@ -11,7 +11,9 @@ const __dirname = dirname(__filename);
 const app = express();
 const port = process.env.PORT || 3000;
 
-const FILES_DIR = 'C:\\Users\\RMSF_SDAI\\OneDrive\\Analistas\\SCP';
+//const FILES_DIR = 'C:\\Users\\RMSF_SDAI\\OneDrive\\Analistas\\SCP';
+//const FILES_DIR = 'C:\\Users\\tanck\\OneDrive\\Área de Trabalho\\projetos';
+const FILES_DIR = 'C:\\Users\\tanck\\OneDrive\\Área de Trabalho\\projetos';
 
 // Middleware para lidar com JSON no corpo da requisição
 app.use(express.json());
@@ -25,13 +27,42 @@ app.get('/api/message', (req, res) => {
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Rota para listar todos os arquivos na pasta especificada
+async function listAllFiles(dir) {
+    let fileList = [];
+    const files = await fs.readdir(dir, { withFileTypes: true });
+
+    for (const file of files) {
+        const fullPath = path.join(dir, file.name);
+        if (file.isDirectory()) {
+            const subDirFiles = await listAllFiles(fullPath);
+            fileList = fileList.concat(subDirFiles);
+        } else {
+            fileList.push(fullPath);
+        }
+    }
+    return fileList;
+}
+
 app.get('/api/files', async (req, res) => {
     try {
-        const files = await fs.readdir(FILES_DIR);
-        res.json(files);
+
+        const filenames = await fs.readdir(FILES_DIR);
+
+        if (!filenames.length) {
+            return res.status(404).send('No files found in the specified directory.');
+        }
+
+        const fileData = await Promise.all(
+            filenames.map(async (filename) => ({
+                filename,
+                content: await fs.readFile(path.join(FILES_DIR, filename), 'utf8'), // Read content with encoding
+            }))
+        );
+
+        res.json(fileData);
     } catch (err) {
         console.error(err);
-        res.status(500).send('Erro ao listar os arquivos');
+        res.status(500).send('Internal server error.'); // More generic error message for security
     }
 });
 
