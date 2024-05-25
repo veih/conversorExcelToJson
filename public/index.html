@@ -88,6 +88,7 @@
             const loadButtonGestal = document.getElementById('loadButtonGestal');
 
             const fileButton = document.getElementById('fileButton');
+            const sheetTabs = document.getElementById('sheetTabs');
             const tableOutput = document.getElementById('tableOutput');
             const searchInput = document.getElementById('searchInput');
             const searchButton = document.getElementById('searchButton');
@@ -122,8 +123,28 @@
             }
 
             async function fetchExcelFileSca() {
-                const filenamesca = 'CONTROLE DE ACESSO ESCADAS DE EMERGÊNCIA.xlsx'; // Substitua pelo nome do arquivo que você deseja ler
+                const filenamesca = 'CONTROLE DE ACESSO PREVENTIVA.xlsx'; // Substitua pelo nome do arquivo que você deseja ler
                 const url = `http://localhost:3000/api/file/sca/${filenamesca}`;
+
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error('Erro ao buscar o arquivo');
+                    }
+                    const data = await response.arrayBuffer();
+                    const workbook = XLSX.read(new Uint8Array(data), { type: 'array' });
+                    const sheetName = workbook.SheetNames[0];
+                    const sheet = workbook.Sheets[sheetName];
+                    jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+                    displayData(jsonData);
+                } catch (error) {
+                    console.error('Erro ao carregar o arquivo Excel:', error);
+                }
+            }
+
+            async function fetchExcelFileSdai() {
+                const filenamesca = 'PLANILHA -  SDAI - 2024.xlsx'; // Substitua pelo nome do arquivo que você deseja ler
+                const url = `http://localhost:3000/api/file/sdai/${filenamesdai}`;
 
                 try {
                     const response = await fetch(url);
@@ -200,8 +221,8 @@
                                 <table class="table table-bordered">
                                     <thead class="thead-dark">
                                         <tr>
-                                            ${Object.keys(cardData[0]).map((key) =>
-                            `<th>${key}</th>`)}
+                                            <th>Campo</th>
+                                            <th>Valor</th>
                                         </tr>
                                     </thead>
                                     <tbody>

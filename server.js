@@ -13,6 +13,7 @@ const port = process.env.PORT || 3000;
 
 const FILES_DIR = 'C:\\Users\\RMSF_SDAI\\OneDrive\\Analistas\\SCP';
 const FILES_DIR_SCA = 'C:\\Users\\RMSF_SDAI\\OneDrive\\Analistas\\SCA';
+const FILES_DIR_SDAI = 'C:\\Users\\RMSF_SDAI\\OneDrive\\Analistas\\SDAI\\SDAI';
 
 // Middleware para lidar com JSON no corpo da requisição
 app.use(express.json());
@@ -46,14 +47,24 @@ app.get('/api/files', async (req, res) => {
     try {
         const filenames = await fs.readdir(FILES_DIR);
         const filenamesSCA = await fs.readdir(FILES_DIR_SCA);
+        const filenamesSDAI = await fs.readdir(FILES_DIR_SDAI);
 
-        if (!filenames.length && !filenamesSCA.length) {
+        if (!filenames.length && !filenamesSCA.length && !filenamesSDAI.length) {
             return res.status(404).send('No files found in the specified directories.');
         }
 
+        const allFilenames = filenames.concat(filenamesSCA, filenamesSDAI, filenamesSDAI);
+
         const fileData = await Promise.all(
-            filenames.concat(filenamesSCA).map(async (filename) => {
-                const dir = filenames.includes(filename) ? FILES_DIR : FILES_DIR_SCA;
+            allFilenames.map(async (filename) => {
+                let dir;
+                if (filenames.includes(filename)) {
+                    dir = FILES_DIR;
+                } else if (filenamesSCA.includes(filename)) {
+                    dir = FILES_DIR_SCA;
+                } else if (filenamesSDAI.includes(filename)) {
+                    dir = FILES_DIR_SDAI;
+                }
                 return {
                     filename,
                     content: await fs.readFile(path.join(dir, filename), 'utf8'), // Read content with encoding
@@ -67,6 +78,7 @@ app.get('/api/files', async (req, res) => {
         res.status(500).send('Internal server error.'); // More generic error message for security
     }
 });
+
 
 // Rota para servir um arquivo específico da pasta SCP
 app.get('/api/file/:filename', async (req, res) => {
@@ -96,6 +108,23 @@ app.get('/api/file/sca/:filenamesca', async (req, res) => {
         }
 
         const filePath = path.join(FILES_DIR_SCA, filenamesca);
+        const fileContent = await fs.readFile(filePath);
+        res.send(fileContent);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Erro ao ler o arquivo');
+    }
+});
+
+app.get('/api/file/sca/:filenamesdai', async (req, res) => {
+    try {
+        const { filenamesdai } = req.params;
+
+        if (!filenamesdai) {
+            return res.status(400).send('Filename is required');
+        }
+
+        const filePath = path.join(FILES_DIR_SDAI, filenamesdai);
         const fileContent = await fs.readFile(filePath);
         res.send(fileContent);
     } catch (err) {
