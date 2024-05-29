@@ -143,7 +143,7 @@
             }
 
             async function fetchExcelFileSdai() {
-                const filenamesca = 'PLANILHA -  SDAI - 2024.xlsx'; // Substitua pelo nome do arquivo que você deseja ler
+                const filenamesca = 'PLANILHA ENDEREÇO ATUALIZADA 2024.xlsx'; // Substitua pelo nome do arquivo que você deseja ler
                 const url = `http://localhost:3000/api/file/sdai/${filenamesdai}`;
 
                 try {
@@ -181,7 +181,7 @@
 
             loadButtonScp.addEventListener('click', () => fetchExcelFile('data', 'SCP.xlsx'));
             loadButtonSca.addEventListener('click', () => fetchExcelFileSca('data', 'SCA.xlsx'));
-            loadButtonSdai.addEventListener('click', () => fetchExcelFile('data', 'SDAI.xlsx'));
+            loadButtonSdai.addEventListener('click', () => fetchExcelFileSdai('data', 'SDAI.xlsx'));
             loadButtonGestal.addEventListener('click', () => fetchExcelFile('data', 'GESTAL.xlsx'));
 
 

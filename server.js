@@ -13,7 +13,7 @@ const port = process.env.PORT || 3000;
 
 const FILES_DIR = 'C:\\Users\\RMSF_SDAI\\OneDrive\\Analistas\\SCP';
 const FILES_DIR_SCA = 'C:\\Users\\RMSF_SDAI\\OneDrive\\Analistas\\SCA';
-const FILES_DIR_SDAI = 'C:\\Users\\RMSF_SDAI\\OneDrive\\Analistas\\SDAI\\SDAI';
+const FILES_DIR_SDAI = 'C:\\Users\\RMSF_SDAI\\OneDrive\\Analistas\\SDAI\\PLANILHA-SDAI-2024';
 
 // Middleware para lidar com JSON no corpo da requisição
 app.use(express.json());
