@@ -10,10 +10,17 @@ const __dirname = dirname(__filename);
 
 const app = express();
 const port = process.env.PORT || 3000;
+// configuração da empresa
 
-const FILES_DIR = 'C:\\Users\\RMSF_SDAI\\OneDrive\\Analistas\\SCP';
-const FILES_DIR_SCA = 'C:\\Users\\RMSF_SDAI\\OneDrive\\Analistas\\SCA';
-const FILES_DIR_SDAI = 'C:\\Users\\RMSF_SDAI\\OneDrive\\Analistas\\SDAI\\PLANILHA-SDAI-2024';
+// const FILES_DIR = 'C:\\Users\\RMSF_SDAI\\OneDrive\\Analistas\\SCP';
+// const FILES_DIR_SCA = 'C:\\Users\\RMSF_SDAI\\OneDrive\\Analistas\\SCA';
+// const FILES_DIR_SDAI = 'C:\\Users\\RMSF_SDAI\\OneDrive\\Analistas\\SDAI\\PLANILHA-SDAI-2024';
+
+// configuração de casa
+
+const FILES_DIR = 'C:\\Users\\tanck\\OneDrive\\Área de Trabalho\\teste';
+const FILES_DIR_SCA = 'C:\\Users\\tanck\\OneDrive\\Área de Trabalho\\teste';
+const FILES_DIR_SDAI = 'C:\\Users\\tanck\\OneDrive\\Área de Trabalho\\teste';
 
 // Middleware para lidar com JSON no corpo da requisição
 app.use(express.json());
@@ -116,7 +123,7 @@ app.get('/api/file/sca/:filenamesca', async (req, res) => {
     }
 });
 
-app.get('/api/file/sca/:filenamesdai', async (req, res) => {
+app.get('/api/file/sdai/:filenamesdai', async (req, res) => {
     try {
         const { filenamesdai } = req.params;
 
