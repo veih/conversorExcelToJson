@@ -21,6 +21,7 @@ const port = process.env.PORT || 3000;
 const FILES_DIR = 'C:\\Users\\tanck\\OneDrive\\Área de Trabalho\\teste';
 const FILES_DIR_SCA = 'C:\\Users\\tanck\\OneDrive\\Área de Trabalho\\teste';
 const FILES_DIR_SDAI = 'C:\\Users\\tanck\\OneDrive\\Área de Trabalho\\teste';
+const FILES_DIR_GESTAL = 'C:\\Users\\tanck\\OneDrive\\Área de Trabalho\\teste';
 
 // Middleware para lidar com JSON no corpo da requisição
 app.use(express.json());
@@ -71,6 +72,8 @@ app.get('/api/files', async (req, res) => {
                     dir = FILES_DIR_SCA;
                 } else if (filenamesSDAI.includes(filename)) {
                     dir = FILES_DIR_SDAI;
+                } else if (filenamesGESTAL.includes(filename)) {
+                    dir = FILES_DIR_GESTAL;
                 }
                 return {
                     filename,
@@ -132,6 +135,23 @@ app.get('/api/file/sdai/:filenamesdai', async (req, res) => {
         }
 
         const filePath = path.join(FILES_DIR_SDAI, filenamesdai);
+        const fileContent = await fs.readFile(filePath);
+        res.send(fileContent);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Erro ao ler o arquivo');
+    }
+});
+
+app.get('/api/file/gestal/:filenamegestal', async (req, res) => {
+    try {
+        const { filenamegestal } = req.params;
+
+        if (!filenamegestal) {
+            return res.status(400).send('Filename is required');
+        }
+
+        const filePath = path.join(FILES_DIR_GESTAL, filenamegestal);
         const fileContent = await fs.readFile(filePath);
         res.send(fileContent);
     } catch (err) {

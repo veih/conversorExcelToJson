@@ -29,7 +29,7 @@
                     <li class="nav-item">
                         <a class="nav-link" id="loadButtonGestal" href="#" aria-current="page">GESTAL</a>
                     </li>
-                    <li class="nav-item dropdown">
+                    <!-- <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
                             data-bs-toggle="dropdown" aria-expanded="false">Dropdown</a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
@@ -40,7 +40,7 @@
                             </li>
                             <li><a class="dropdown-item" href="#">Something else here</a></li>
                         </ul>
-                    </li>
+                    </li> -->
                 </ul>
                 <form class="d-flex">
                     <input type="text" id="searchInput" placeholder="Digite para buscar"
@@ -145,6 +145,26 @@
             async function fetchExcelFileSdai() {
                 const filenamesdai = 'cliente veronica.xlsx'; // Substitua pelo nome do arquivo que você deseja ler
                 const url = `http://localhost:3000/api/file/sdai/${filenamesdai}`;
+
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error('Erro ao buscar o arquivo');
+                    }
+                    const data = await response.arrayBuffer();
+                    const workbook = XLSX.read(new Uint8Array(data), { type: 'array' });
+                    const sheetName = workbook.SheetNames[0];
+                    const sheet = workbook.Sheets[sheetName];
+                    jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+                    displayData(jsonData);
+                } catch (error) {
+                    console.error('Erro ao carregar o arquivo Excel:', error);
+                }
+            }
+
+            async function fetchExcelFileGestal() {
+                const filenamegestal = 'cliente veronica.xlsx'; // Substitua pelo nome do arquivo que você deseja ler
+                const url = `http://localhost:3000/api/file/gestal/${filenamegestal}`;
 
                 try {
                     const response = await fetch(url);
