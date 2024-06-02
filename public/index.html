@@ -126,16 +126,23 @@
                 try {
                     const response = await fetch(url);
                     if (!response.ok) {
-                        throw new Error('Erro ao buscar o arquivo');
+                        throw new Error('Error fetching the file');
                     }
                     const data = await response.arrayBuffer();
                     const workbook = XLSX.read(new Uint8Array(data), { type: 'array' });
-                    const sheetName = workbook.SheetNames[0];
-                    const sheet = workbook.Sheets[sheetName];
-                    jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-                    displayData(jsonData);
+
+                    const allSheetData = workbook.SheetNames.map(sheetName => {
+                        const sheet = workbook.Sheets[sheetName];
+                        const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+                        return { sheetName, data: jsonData };
+                    });
+
+                    allSheetData.forEach(sheet => {
+                        console.log(`Data from sheet "${sheet.sheetName}":`, sheet.data);
+                        displayData(sheet.sheetName, sheet.data); // Call displayData with sheet name and data
+                    });
                 } catch (error) {
-                    console.error('Erro ao carregar o arquivo Excel:', error);
+                    console.error('Error loading the Excel file:', error);
                 }
             }
 
@@ -146,16 +153,23 @@
                 try {
                     const response = await fetch(url);
                     if (!response.ok) {
-                        throw new Error('Erro ao buscar o arquivo');
+                        throw new Error('Error fetching the file');
                     }
                     const data = await response.arrayBuffer();
                     const workbook = XLSX.read(new Uint8Array(data), { type: 'array' });
-                    const sheetName = workbook.SheetNames[0];
-                    const sheet = workbook.Sheets[sheetName];
-                    jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-                    displayData(jsonData);
+
+                    const allSheetData = workbook.SheetNames.map(sheetName => {
+                        const sheet = workbook.Sheets[sheetName];
+                        const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+                        return { sheetName, data: jsonData };
+                    });
+
+                    allSheetData.forEach(sheet => {
+                        console.log(`Data from sheet "${sheet.sheetName}":`, sheet.data);
+                        displayData(sheet.sheetName, sheet.data); // Call displayData with sheet name and data
+                    });
                 } catch (error) {
-                    console.error('Erro ao carregar o arquivo Excel:', error);
+                    console.error('Error loading the Excel file:', error);
                 }
             }
 
@@ -166,16 +180,23 @@
                 try {
                     const response = await fetch(url);
                     if (!response.ok) {
-                        throw new Error('Erro ao buscar o arquivo');
+                        throw new Error('Error fetching the file');
                     }
                     const data = await response.arrayBuffer();
                     const workbook = XLSX.read(new Uint8Array(data), { type: 'array' });
-                    const sheetName = workbook.SheetNames[0];
-                    const sheet = workbook.Sheets[sheetName];
-                    jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-                    displayData(jsonData);
+
+                    const allSheetData = workbook.SheetNames.map(sheetName => {
+                        const sheet = workbook.Sheets[sheetName];
+                        const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+                        return { sheetName, data: jsonData };
+                    });
+
+                    allSheetData.forEach(sheet => {
+                        console.log(`Data from sheet "${sheet.sheetName}":`, sheet.data);
+                        displayData(sheet.sheetName, sheet.data); // Call displayData with sheet name and data
+                    });
                 } catch (error) {
-                    console.error('Erro ao carregar o arquivo Excel:', error);
+                    console.error('Error loading the Excel file:', error);
                 }
             }
 
@@ -186,16 +207,23 @@
                 try {
                     const response = await fetch(url);
                     if (!response.ok) {
-                        throw new Error('Erro ao buscar o arquivo');
+                        throw new Error('Error fetching the file');
                     }
                     const data = await response.arrayBuffer();
                     const workbook = XLSX.read(new Uint8Array(data), { type: 'array' });
-                    const sheetName = workbook.SheetNames[0];
-                    const sheet = workbook.Sheets[sheetName];
-                    jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-                    displayData(jsonData);
+
+                    const allSheetData = workbook.SheetNames.map(sheetName => {
+                        const sheet = workbook.Sheets[sheetName];
+                        const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+                        return { sheetName, data: jsonData };
+                    });
+
+                    allSheetData.forEach(sheet => {
+                        console.log(`Data from sheet "${sheet.sheetName}":`, sheet.data);
+                        displayData(sheet.sheetName, sheet.data); // Call displayData with sheet name and data
+                    });
                 } catch (error) {
-                    console.error('Erro ao carregar o arquivo Excel:', error);
+                    console.error('Error loading the Excel file:', error);
                 }
             }
 
@@ -223,7 +251,7 @@
 
 
             // Função para exibir os dados na tabela de cards
-            function displayData(data) {
+            function displayData(sheetName, data) {
                 tableOutput.innerHTML = ''; // Limpa a saída anterior
                 const headers = data[0]; // Cabeçalhos da tabela
                 console.log(data)
