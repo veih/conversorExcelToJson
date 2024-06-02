@@ -10,15 +10,9 @@ const __dirname = dirname(__filename);
 
 const app = express();
 const port = process.env.PORT || 3000;
-// configuração da empresa
-
-// const FILES_DIR = 'C:\\Users\\RMSF_SDAI\\OneDrive\\Analistas\\SCP';
-// const FILES_DIR_SCA = 'C:\\Users\\RMSF_SDAI\\OneDrive\\Analistas\\SCA';
-// const FILES_DIR_SDAI = 'C:\\Users\\RMSF_SDAI\\OneDrive\\Analistas\\SDAI\\PLANILHA-SDAI-2024';
 
 // configuração de casa
-
-const FILES_DIR = 'C:\\Users\\tanck\\OneDrive\\Área de Trabalho\\teste';
+const FILES_DIR_SCP = 'C:\\Users\\tanck\\OneDrive\\Área de Trabalho\\teste';
 const FILES_DIR_SCA = 'C:\\Users\\tanck\\OneDrive\\Área de Trabalho\\teste';
 const FILES_DIR_SDAI = 'C:\\Users\\tanck\\OneDrive\\Área de Trabalho\\teste';
 const FILES_DIR_GESTAL = 'C:\\Users\\tanck\\OneDrive\\Área de Trabalho\\teste';
@@ -34,7 +28,7 @@ app.get('/api/message', (req, res) => {
 // Servir arquivos estáticos da pasta public
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Rota para listar todos os arquivos na pasta especificada
+// Função para listar todos os arquivos na pasta especificada
 async function listAllFiles(dir) {
     let fileList = [];
     const files = await fs.readdir(dir, { withFileTypes: true });
@@ -53,21 +47,22 @@ async function listAllFiles(dir) {
 
 app.get('/api/files', async (req, res) => {
     try {
-        const filenames = await fs.readdir(FILES_DIR);
+        const filenamesSCP = await fs.readdir(FILES_DIR_SCP);
         const filenamesSCA = await fs.readdir(FILES_DIR_SCA);
         const filenamesSDAI = await fs.readdir(FILES_DIR_SDAI);
+        const filenamesGESTAL = await fs.readdir(FILES_DIR_GESTAL);
 
-        if (!filenames.length && !filenamesSCA.length && !filenamesSDAI.length) {
+        if (!filenamesSCP.length && !filenamesSCA.length && !filenamesSDAI.length && !filenamesGESTAL.length) {
             return res.status(404).send('No files found in the specified directories.');
         }
 
-        const allFilenames = filenames.concat(filenamesSCA, filenamesSDAI, filenamesSDAI);
+        const allFilenames = [...filenamesSCP, ...filenamesSCA, ...filenamesSDAI, ...filenamesGESTAL];
 
         const fileData = await Promise.all(
             allFilenames.map(async (filename) => {
                 let dir;
-                if (filenames.includes(filename)) {
-                    dir = FILES_DIR;
+                if (filenamesSCP.includes(filename)) {
+                    dir = FILES_DIR_SCP;
                 } else if (filenamesSCA.includes(filename)) {
                     dir = FILES_DIR_SCA;
                 } else if (filenamesSDAI.includes(filename)) {
@@ -89,9 +84,8 @@ app.get('/api/files', async (req, res) => {
     }
 });
 
-
 // Rota para servir um arquivo específico da pasta SCP
-app.get('/api/file/:filename', async (req, res) => {
+app.get('/api/file/scp/:filename', async (req, res) => {
     try {
         const { filename } = req.params;
 
@@ -99,8 +93,8 @@ app.get('/api/file/:filename', async (req, res) => {
             return res.status(400).send('Filename is required');
         }
 
-        const filePath = path.join(FILES_DIR, filename);
-        const fileContent = await fs.readFile(filePath);
+        const filePath = path.join(FILES_DIR_SCP, filename);
+        const fileContent = await fs.readFile(filePath, 'utf8');
         res.send(fileContent);
     } catch (err) {
         console.error(err);
@@ -109,16 +103,16 @@ app.get('/api/file/:filename', async (req, res) => {
 });
 
 // Rota para servir um arquivo específico da pasta SCA
-app.get('/api/file/sca/:filenamesca', async (req, res) => {
+app.get('/api/file/sca/:filename', async (req, res) => {
     try {
-        const { filenamesca } = req.params;
+        const { filename } = req.params;
 
-        if (!filenamesca) {
+        if (!filename) {
             return res.status(400).send('Filename is required');
         }
 
-        const filePath = path.join(FILES_DIR_SCA, filenamesca);
-        const fileContent = await fs.readFile(filePath);
+        const filePath = path.join(FILES_DIR_SCA, filename);
+        const fileContent = await fs.readFile(filePath, 'utf8');
         res.send(fileContent);
     } catch (err) {
         console.error(err);
@@ -126,16 +120,16 @@ app.get('/api/file/sca/:filenamesca', async (req, res) => {
     }
 });
 
-app.get('/api/file/sdai/:filenamesdai', async (req, res) => {
+app.get('/api/file/sdai/:filename', async (req, res) => {
     try {
-        const { filenamesdai } = req.params;
+        const { filename } = req.params;
 
-        if (!filenamesdai) {
+        if (!filename) {
             return res.status(400).send('Filename is required');
         }
 
-        const filePath = path.join(FILES_DIR_SDAI, filenamesdai);
-        const fileContent = await fs.readFile(filePath);
+        const filePath = path.join(FILES_DIR_SDAI, filename);
+        const fileContent = await fs.readFile(filePath, 'utf8');
         res.send(fileContent);
     } catch (err) {
         console.error(err);
@@ -143,16 +137,16 @@ app.get('/api/file/sdai/:filenamesdai', async (req, res) => {
     }
 });
 
-app.get('/api/file/gestal/:filenamegestal', async (req, res) => {
+app.get('/api/file/gestal/:filename', async (req, res) => {
     try {
-        const { filenamegestal } = req.params;
+        const { filename } = req.params;
 
-        if (!filenamegestal) {
+        if (!filename) {
             return res.status(400).send('Filename is required');
         }
 
-        const filePath = path.join(FILES_DIR_GESTAL, filenamegestal);
-        const fileContent = await fs.readFile(filePath);
+        const filePath = path.join(FILES_DIR_GESTAL, filename);
+        const fileContent = await fs.readFile(filePath, 'utf8');
         res.send(fileContent);
     } catch (err) {
         console.error(err);
@@ -173,7 +167,7 @@ app.post('/api/file/:filename', async (req, res) => {
             return res.status(400).send('Filename is required');
         }
 
-        const filePath = path.join(FILES_DIR, filename);
+        const filePath = path.join(FILES_DIR_SCP, filename);
         await fs.writeFile(filePath, JSON.stringify(data, null, 2)); // Pretty-printed JSON
         res.send('Dados salvos com sucesso!');
     } catch (err) {
@@ -182,16 +176,20 @@ app.post('/api/file/:filename', async (req, res) => {
     }
 });
 
-// Certifique-se de que o diretório de dados exista (se necessário)
+// Certifique-se de que os diretórios de dados existam (se necessário)
 (async () => {
     try {
-        await fs.access(FILES_DIR);
+        await fs.access(FILES_DIR_SCP);
         await fs.access(FILES_DIR_SCA);
+        await fs.access(FILES_DIR_SDAI);
+        await fs.access(FILES_DIR_GESTAL);
     } catch (err) {
         if (err.code === 'ENOENT') {
             console.log('Diretório de dados não encontrado. Criando...');
-            await fs.mkdir(FILES_DIR, { recursive: true });
+            await fs.mkdir(FILES_DIR_SCP, { recursive: true });
             await fs.mkdir(FILES_DIR_SCA, { recursive: true });
+            await fs.mkdir(FILES_DIR_SDAI, { recursive: true });
+            await fs.mkdir(FILES_DIR_GESTAL, { recursive: true });
         } else {
             console.error('Erro ao acessar o diretório de dados:', err);
         }

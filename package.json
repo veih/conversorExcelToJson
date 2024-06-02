@@ -14,16 +14,5 @@
   },
   "devDependencies": {
     "nodemon": "^2.0.7"
-  },
-  "pkg": {
-    "targets": [
-      "node14-win-x64",
-      "node14-mac-x64",
-      "node14-linux-x64"
-    ],
-    "assets": [
-      "public/**/*",
-      "server.js"
-    ]
   }
 }

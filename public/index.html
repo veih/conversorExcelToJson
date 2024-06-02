@@ -53,6 +53,23 @@
 
     <div class="container mt-4">
         <pre id="jsonOutput"></pre>
+        <nav aria-label="Page navigation example">
+            <ul class="pagination">
+                <li class="page-item">
+                    <a class="page-link" href="#" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item">
+                    <a class="page-link" href="#" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
 
         <div id="tableOutput" class="row row-cols-1 row-cols-md-3 g-4 mt-3"></div>
 
@@ -102,7 +119,7 @@
             let originalFileName = ''; // Variável para armazenar o nome do arquivo original
 
             // Função para buscar o arquivo Excel da API
-            async function fetchExcelFile() {
+            async function fetchExcelFileScp() {
                 const filenamescp = 'cliente veronica.xlsx'; // Substitua pelo nome do arquivo que você deseja ler
                 const url = `http://localhost:3000/api/file/${filenamescp}`;
 
@@ -163,7 +180,7 @@
             }
 
             async function fetchExcelFileGestal() {
-                const filenamegestal = 'cliente veronica.xlsx'; // Substitua pelo nome do arquivo que você deseja ler
+                const filenamegestal = 'Planilha-Teste-de-Excel-Nivel-Intermediario-1.xlsx'; // Substitua pelo nome do arquivo que você deseja ler
                 const url = `http://localhost:3000/api/file/gestal/${filenamegestal}`;
 
                 try {
@@ -199,17 +216,17 @@
                 displayData([jsonData[0], ...filteredData]); // Mantém o cabeçalho e adiciona os dados filtrados
             }
 
-            loadButtonScp.addEventListener('click', () => fetchExcelFile('data', 'SCP.xlsx'));
+            loadButtonScp.addEventListener('click', () => fetchExcelFileScp('data', 'SCP.xlsx'));
             loadButtonSca.addEventListener('click', () => fetchExcelFileSca('data', 'SCA.xlsx'));
             loadButtonSdai.addEventListener('click', () => fetchExcelFileSdai('data', 'SDAI.xlsx'));
-            loadButtonGestal.addEventListener('click', () => fetchExcelFile('data', 'GESTAL.xlsx'));
+            loadButtonGestal.addEventListener('click', () => fetchExcelFileGestal('data', 'GESTAL.xlsx'));
 
 
             // Função para exibir os dados na tabela de cards
             function displayData(data) {
                 tableOutput.innerHTML = ''; // Limpa a saída anterior
                 const headers = data[0]; // Cabeçalhos da tabela
-
+                console.log(data)
                 data.slice(1).forEach((row, i) => {
                     const cardId = `card-${i + 1}`; // ID único para cada card
                     const cardHTML = `
