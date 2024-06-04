@@ -45,44 +45,44 @@ async function listAllFiles(dir) {
     return fileList;
 }
 
-app.get('/api/files', async (req, res) => {
-    try {
-        const filenamesSCP = await fs.readdir(FILES_DIR_SCP);
-        const filenamesSCA = await fs.readdir(FILES_DIR_SCA);
-        const filenamesSDAI = await fs.readdir(FILES_DIR_SDAI);
-        const filenamesGESTAL = await fs.readdir(FILES_DIR_GESTAL);
+// app.get('/api/files', async (req, res) => {
+//     try {
+//         const filenamesSCP = await fs.readdir(FILES_DIR_SCP);
+//         const filenamesSCA = await fs.readdir(FILES_DIR_SCA);
+//         const filenamesSDAI = await fs.readdir(FILES_DIR_SDAI);
+//         const filenamesGESTAL = await fs.readdir(FILES_DIR_GESTAL);
 
-        if (!filenamesSCP.length && !filenamesSCA.length && !filenamesSDAI.length && !filenamesGESTAL.length) {
-            return res.status(404).send('No files found in the specified directories.');
-        }
+//         if (!filenamesSCP.length && !filenamesSCA.length && !filenamesSDAI.length && !filenamesGESTAL.length) {
+//             return res.status(404).send('No files found in the specified directories.');
+//         }
 
-        const allFilenames = [...filenamesSCP, ...filenamesSCA, ...filenamesSDAI, ...filenamesGESTAL];
+//         const allFilenames = [...filenamesSCP, ...filenamesSCA, ...filenamesSDAI, ...filenamesGESTAL];
 
-        const fileData = await Promise.all(
-            allFilenames.map(async (filename) => {
-                let dir;
-                if (filenamesSCP.includes(filename)) {
-                    dir = FILES_DIR_SCP;
-                } else if (filenamesSCA.includes(filename)) {
-                    dir = FILES_DIR_SCA;
-                } else if (filenamesSDAI.includes(filename)) {
-                    dir = FILES_DIR_SDAI;
-                } else if (filenamesGESTAL.includes(filename)) {
-                    dir = FILES_DIR_GESTAL;
-                }
-                return {
-                    filename,
-                    content: await fs.readFile(path.join(dir, filename), 'utf8'), // Read content with encoding
-                };
-            })
-        );
+//         const fileData = await Promise.all(
+//             allFilenames.map(async (filename) => {
+//                 let dir;
+//                 if (filenamesSCP.includes(filename)) {
+//                     dir = FILES_DIR_SCP;
+//                 } else if (filenamesSCA.includes(filename)) {
+//                     dir = FILES_DIR_SCA;
+//                 } else if (filenamesSDAI.includes(filename)) {
+//                     dir = FILES_DIR_SDAI;
+//                 } else if (filenamesGESTAL.includes(filename)) {
+//                     dir = FILES_DIR_GESTAL;
+//                 }
+//                 return {
+//                     filename,
+//                     content: await fs.readFile(path.join(dir, filename), 'utf8'), // Read content with encoding
+//                 };
+//             })
+//         );
 
-        res.json(fileData);
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Internal server error.'); // More generic error message for security
-    }
-});
+//         res.json(fileData);
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).send('Internal server error.'); // More generic error message for security
+//     }
+// });
 
 // Rota para servir um arquivo específico da pasta SCP
 app.get('/api/file/scp/:filename', async (req, res) => {
