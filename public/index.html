@@ -54,6 +54,24 @@
     <div class="container mt-4">
         <pre id="jsonOutput"></pre>
 
+        <nav aria-label="Page navigation example">
+            <ul class="pagination">
+                <li class="page-item">
+                    <a class="page-link" href="#" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item">
+                    <a class="page-link" href="#" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
         <div id="tableOutput" class="row row-cols-1 row-cols-md-3 g-4 mt-3"></div>
 
     </div>
@@ -104,7 +122,7 @@
             // Função para buscar o arquivo Excel da API
             async function fetchExcelFile() {
                 const filenamescp = 'MANUTENÇAO_LOJAS_ATUALIZADA 0.1.xlsx'; // Substitua pelo nome do arquivo que você deseja ler
-                const url = `http://localhost:3000/api/file/${filenamescp}`;
+                const url = `http://localhost:3000/api/file/scp/${filenamescp}`;
 
                 try {
                     const response = await fetch(url);
@@ -143,8 +161,8 @@
             }
 
             async function fetchExcelFileSdai() {
-                const filenamesca = 'PLANILHA ENDEREÇO ATUALIZADA 2024.xlsx'; // Substitua pelo nome do arquivo que você deseja ler
-                const url = `http://localhost:3000/api/file/sdai/${filenamesdai}`;
+                const filenamesdai = 'PLANILHA ENDEREÇO ATUALIZADA 2024.xlsx'; // Substitua pelo nome do arquivo que você deseja ler
+                const url = `http://localhost:3000/api/file/sdai/PLANILHA-SDAI-2024/${filenamesdai}`;
 
                 try {
                     const response = await fetch(url);
@@ -162,6 +180,26 @@
                 }
             }
 
+            async function fetchExcelFileGestal() {
+                const filenamegestal = 'RMF_CRL_GERAL_MEDICAO LOJAS_14_02_2024.xlsx'; // Substitua pelo nome do arquivo que você deseja ler
+                const url = `http://localhost:3000/api/file/gestal/${filenamegestal}`;
+
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error('Erro ao buscar o arquivo');
+                    }
+                    const data = await response.arrayBuffer();
+                    const workbook = XLSX.read(new Uint8Array(data), { type: 'array' });
+                    const sheetName = workbook.SheetNames[0];
+                    const sheet = workbook.Sheets[sheetName];
+                    jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+                    displayData(jsonData);
+                } catch (error) {
+                    console.error('Erro ao carregar o arquivo Excel:', error);
+                }
+            }
+            
             // Evento de clique para o botão de busca
             searchButton.addEventListener('click', performSearch);
             searchInput.addEventListener('keypress', function (e) {
@@ -182,7 +220,7 @@
             loadButtonScp.addEventListener('click', () => fetchExcelFile('data', 'SCP.xlsx'));
             loadButtonSca.addEventListener('click', () => fetchExcelFileSca('data', 'SCA.xlsx'));
             loadButtonSdai.addEventListener('click', () => fetchExcelFileSdai('data', 'SDAI.xlsx'));
-            loadButtonGestal.addEventListener('click', () => fetchExcelFile('data', 'GESTAL.xlsx'));
+            loadButtonGestal.addEventListener('click', () => fetchExcelFileGestal('data', 'GESTAL.xlsx'));
 
 
             // Função para exibir os dados na tabela de cards
