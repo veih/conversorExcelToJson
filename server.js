@@ -3,7 +3,8 @@ import open from 'open';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import fs from 'fs/promises'; // módulo fs com promises
+import fs from 'fs/promises';
+import XLSX from 'xlsx'; // Importando a biblioteca xlsx
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -29,60 +30,54 @@ app.get('/api/message', (req, res) => {
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Função para listar todos os arquivos na pasta especificada
-async function listAllFiles(dir) {
-    let fileList = [];
-    const files = await fs.readdir(dir, { withFileTypes: true });
+app.get('/api/files/all', async (req, res) => {
+    try {
+        const directories = [FILES_DIR_SCP, FILES_DIR_SCA, FILES_DIR_SDAI, FILES_DIR_GESTAL];
+        let allFiles = [];
 
-    for (const file of files) {
-        const fullPath = path.join(dir, file.name);
-        if (file.isDirectory()) {
-            const subDirFiles = await listAllFiles(fullPath);
-            fileList = fileList.concat(subDirFiles);
+        for (const dir of directories) {
+            const files = await fs.readdir(dir);
+            for (const file of files) {
+                const filePath = path.join(dir, file);
+                const fileContent = await excelToJson(filePath);
+                allFiles.push({ filename: file, content: fileContent });
+            }
+        }
+
+        res.json(allFiles);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Erro ao ler os arquivos');
+    }
+});
+
+// Certifique-se de que os diretórios de dados existam (se necessário)
+(async () => {
+    try {
+        await fs.access(FILES_DIR_SCP);
+        await fs.access(FILES_DIR_SCA);
+        await fs.access(FILES_DIR_SDAI);
+        await fs.access(FILES_DIR_GESTAL);
+    } catch (err) {
+        if (err.code === 'ENOENT') {
+            console.log('Diretório de dados não encontrado. Criando...');
+            await fs.mkdir(FILES_DIR_SCP, { recursive: true });
+            await fs.mkdir(FILES_DIR_SCA, { recursive: true });
+            await fs.mkdir(FILES_DIR_SDAI, { recursive: true });
+            await fs.mkdir(FILES_DIR_GESTAL, { recursive: true });
         } else {
-            fileList.push(fullPath);
+            console.error('Erro ao acessar o diretório de dados:', err);
         }
     }
-    return fileList;
+})();
+
+// Função para converter arquivo Excel em JSON
+async function excelToJson(filePath) {
+    const fileBuffer = await fs.readFile(filePath);
+    const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
+    const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1 });
+    return jsonData;
 }
-
-// app.get('/api/files', async (req, res) => {
-//     try {
-//         const filenamesSCP = await fs.readdir(FILES_DIR_SCP);
-//         const filenamesSCA = await fs.readdir(FILES_DIR_SCA);
-//         const filenamesSDAI = await fs.readdir(FILES_DIR_SDAI);
-//         const filenamesGESTAL = await fs.readdir(FILES_DIR_GESTAL);
-
-//         if (!filenamesSCP.length && !filenamesSCA.length && !filenamesSDAI.length && !filenamesGESTAL.length) {
-//             return res.status(404).send('No files found in the specified directories.');
-//         }
-
-//         const allFilenames = [...filenamesSCP, ...filenamesSCA, ...filenamesSDAI, ...filenamesGESTAL];
-
-//         const fileData = await Promise.all(
-//             allFilenames.map(async (filename) => {
-//                 let dir;
-//                 if (filenamesSCP.includes(filename)) {
-//                     dir = FILES_DIR_SCP;
-//                 } else if (filenamesSCA.includes(filename)) {
-//                     dir = FILES_DIR_SCA;
-//                 } else if (filenamesSDAI.includes(filename)) {
-//                     dir = FILES_DIR_SDAI;
-//                 } else if (filenamesGESTAL.includes(filename)) {
-//                     dir = FILES_DIR_GESTAL;
-//                 }
-//                 return {
-//                     filename,
-//                     content: await fs.readFile(path.join(dir, filename), 'utf8'), // Read content with encoding
-//                 };
-//             })
-//         );
-
-//         res.json(fileData);
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send('Internal server error.'); // More generic error message for security
-//     }
-// });
 
 // Rota para servir um arquivo específico da pasta SCP
 app.get('/api/file/scp/:filename', async (req, res) => {
@@ -94,8 +89,8 @@ app.get('/api/file/scp/:filename', async (req, res) => {
         }
 
         const filePath = path.join(FILES_DIR_SCP, filename);
-        const fileContent = await fs.readFile(filePath, 'utf8');
-        res.send(fileContent);
+        const fileContent = await excelToJson(filePath);
+        res.json(fileContent);
     } catch (err) {
         console.error(err);
         res.status(500).send('Erro ao ler o arquivo');
@@ -112,8 +107,8 @@ app.get('/api/file/sca/:filename', async (req, res) => {
         }
 
         const filePath = path.join(FILES_DIR_SCA, filename);
-        const fileContent = await fs.readFile(filePath, 'utf8');
-        res.send(fileContent);
+        const fileContent = await excelToJson(filePath);
+        res.json(fileContent);
     } catch (err) {
         console.error(err);
         res.status(500).send('Erro ao ler o arquivo');
@@ -129,8 +124,8 @@ app.get('/api/file/sdai/:filename', async (req, res) => {
         }
 
         const filePath = path.join(FILES_DIR_SDAI, filename);
-        const fileContent = await fs.readFile(filePath, 'utf8');
-        res.send(fileContent);
+        const fileContent = await excelToJson(filePath);
+        res.json(fileContent);
     } catch (err) {
         console.error(err);
         res.status(500).send('Erro ao ler o arquivo');
@@ -146,8 +141,8 @@ app.get('/api/file/gestal/:filename', async (req, res) => {
         }
 
         const filePath = path.join(FILES_DIR_GESTAL, filename);
-        const fileContent = await fs.readFile(filePath, 'utf8');
-        res.send(fileContent);
+        const fileContent = await excelToJson(filePath);
+        res.json(fileContent);
     } catch (err) {
         console.error(err);
         res.status(500).send('Erro ao ler o arquivo');
