@@ -149,48 +149,6 @@ app.get('/api/file/gestal/:filename', async (req, res) => {
     }
 });
 
-app.post('/api/file/:filename', async (req, res) => {
-    try {
-        const { filename } = req.params;
-        const data = req.body; // Espera-se os dados editados no corpo da requisição
-
-        if (!data) {
-            return res.status(400).send('Dados editados ausentes na requisição');
-        }
-
-        if (!filename) {
-            return res.status(400).send('Filename is required');
-        }
-
-        const filePath = path.join(FILES_DIR_SCP, filename);
-        await fs.writeFile(filePath, JSON.stringify(data, null, 2)); // Pretty-printed JSON
-        res.send('Dados salvos com sucesso!');
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Erro ao salvar o arquivo');
-    }
-});
-
-// Certifique-se de que os diretórios de dados existam (se necessário)
-(async () => {
-    try {
-        await fs.access(FILES_DIR_SCP);
-        await fs.access(FILES_DIR_SCA);
-        await fs.access(FILES_DIR_SDAI);
-        await fs.access(FILES_DIR_GESTAL);
-    } catch (err) {
-        if (err.code === 'ENOENT') {
-            console.log('Diretório de dados não encontrado. Criando...');
-            await fs.mkdir(FILES_DIR_SCP, { recursive: true });
-            await fs.mkdir(FILES_DIR_SCA, { recursive: true });
-            await fs.mkdir(FILES_DIR_SDAI, { recursive: true });
-            await fs.mkdir(FILES_DIR_GESTAL, { recursive: true });
-        } else {
-            console.error('Erro ao acessar o diretório de dados:', err);
-        }
-    }
-})();
-
 // Rota para servir o index.html
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
