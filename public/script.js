@@ -17,11 +17,8 @@ document.addEventListener('DOMContentLoaded', function () {
     let currentCardIndex = null; // Índice do card atualmente aberto no modal
     let originalFileName = ''; // Variável para armazenar o nome do arquivo original
 
-    // Função para buscar o arquivo Excel da API
-    // Evento de clique para carregar os dados JSON
-
     async function fetchExcelFileScp() {
-        const filenamescp = 'RMF_CRL_GERAL_MEDICAO LOJAS_14_02_2015.xlsx'; // Substitua pelo nome do arquivo que você deseja ler
+        const filenamescp = 'cliente veronica.xlsx'; // Substitua pelo nome do arquivo que você deseja ler
         const url = `http://localhost:3000/api/file/scp/${filenamescp}`;
 
         try {
@@ -48,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     async function fetchExcelFileSca() {
-        const filenamesca = 'cliente veronica.xlsx'; // Substitua pelo nome do arquivo que você deseja ler
+        const filenamesca = 'Planilha-Teste-de-Excel-Nivel-Intermediario-1.xlsx'; // Substitua pelo nome do arquivo que você deseja ler
         const url = `http://localhost:3000/api/file/sca/${filenamesca}`;
 
         try {
@@ -75,7 +72,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     async function fetchExcelFileSdai() {
-        const filenamesdai = 'cliente veronica.xlsx'; // Substitua pelo nome do arquivo que você deseja ler
+        const filenamesdai = 'Planilha-Teste-de-Excel-Nivel-Intermediario-1.xlsx'; // Substitua pelo nome do arquivo que você deseja ler
         const url = `http://localhost:3000/api/file/sdai/${filenamesdai}`;
 
         try {
