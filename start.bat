@@ -1,5 +1,5 @@
 @echo off
-cd projetos\conversorExcelToJson
+cd projeto\conversorExcelToJson
 echo.
 echo.
 npm start

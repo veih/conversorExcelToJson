@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', function () {
-
     const loadButtonScp = document.getElementById('loadButtonScp');
     const loadButtonSca = document.getElementById('loadButtonSca');
     const loadButtonSdai = document.getElementById('loadButtonSdai');
@@ -17,10 +16,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let currentCardIndex = null; // Índice do card atualmente aberto no modal
     let originalFileName = ''; // Variável para armazenar o nome do arquivo original
 
-    async function fetchExcelFileScp() {
-        const filenamescp = 'cliente veronica.xlsx'; // Substitua pelo nome do arquivo que você deseja ler
-        const url = `http://localhost:3000/api/file/scp/${filenamescp}`;
-
+    async function fetchExcelFile(url) {
         try {
             const response = await fetch(url);
             if (!response.ok) {
@@ -37,88 +33,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
             allSheetData.forEach(sheet => {
                 console.log(`Data from sheet "${sheet.sheetName}":`, sheet.data);
-                displayData(sheet.sheetName, sheet.data); // Call displayData with sheet name and data
-            });
-        } catch (error) {
-            console.error('Error loading the Excel file:', error);
-        }
-    }
-
-    async function fetchExcelFileSca() {
-        const filenamesca = 'Planilha-Teste-de-Excel-Nivel-Intermediario-1.xlsx'; // Substitua pelo nome do arquivo que você deseja ler
-        const url = `http://localhost:3000/api/file/sca/${filenamesca}`;
-
-        try {
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error('Error fetching the file');
-            }
-            const data = await response.arrayBuffer();
-            const workbook = XLSX.read(new Uint8Array(data), { type: 'array' });
-
-            const allSheetData = workbook.SheetNames.map(sheetName => {
-                const sheet = workbook.Sheets[sheetName];
-                const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-                return { sheetName, data: jsonData };
-            });
-
-            allSheetData.forEach(sheet => {
-                console.log(`Data from sheet "${sheet.sheetName}":`, sheet.data);
-                displayData(sheet.sheetName, sheet.data); // Call displayData with sheet name and data
-            });
-        } catch (error) {
-            console.error('Error loading the Excel file:', error);
-        }
-    }
-
-    async function fetchExcelFileSdai() {
-        const filenamesdai = 'Planilha-Teste-de-Excel-Nivel-Intermediario-1.xlsx'; // Substitua pelo nome do arquivo que você deseja ler
-        const url = `http://localhost:3000/api/file/sdai/${filenamesdai}`;
-
-        try {
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error('Error fetching the file');
-            }
-            const data = await response.arrayBuffer();
-            const workbook = XLSX.read(new Uint8Array(data), { type: 'array' });
-
-            const allSheetData = workbook.SheetNames.map(sheetName => {
-                const sheet = workbook.Sheets[sheetName];
-                const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-                return { sheetName, data: jsonData };
-            });
-
-            allSheetData.forEach(sheet => {
-                console.log(`Data from sheet "${sheet.sheetName}":`, sheet.data);
-                displayData(sheet.sheetName, sheet.data); // Call displayData with sheet name and data
-            });
-        } catch (error) {
-            console.error('Error loading the Excel file:', error);
-        }
-    }
-
-    async function fetchExcelFileGestal() {
-        const filenamegestal = 'Planilha-Teste-de-Excel-Nivel-Intermediario-1.xlsx'; // Substitua pelo nome do arquivo que você deseja ler
-        const url = `http://localhost:3000/api/file/gestal/${filenamegestal}`;
-
-        try {
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error('Error fetching the file');
-            }
-            const data = await response.arrayBuffer();
-            const workbook = XLSX.read(new Uint8Array(data), { type: 'array' });
-
-            const allSheetData = workbook.SheetNames.map(sheetName => {
-                const sheet = workbook.Sheets[sheetName];
-                const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-                return { sheetName, data: jsonData };
-            });
-
-            allSheetData.forEach(sheet => {
-                console.log(`Data from sheet "${sheet.sheetName}":`, sheet.data);
-                displayData(sheet.sheetName, sheet.data); // Call displayData with sheet name and data
+                jsonData = sheet.data; // Armazena a última planilha lida em jsonData
+                displayData(jsonData); // Call displayData with data
             });
         } catch (error) {
             console.error('Error loading the Excel file:', error);
@@ -142,17 +58,16 @@ document.addEventListener('DOMContentLoaded', function () {
         displayData([jsonData[0], ...filteredData]); // Mantém o cabeçalho e adiciona os dados filtrados
     }
 
-    loadButtonScp.addEventListener('click', () => fetchExcelFileScp('data', 'SCP.xlsx'));
-    loadButtonSca.addEventListener('click', () => fetchExcelFileSca('data', 'SCA.xlsx'));
-    loadButtonSdai.addEventListener('click', () => fetchExcelFileSdai('data', 'SDAI.xlsx'));
-    loadButtonGestal.addEventListener('click', () => fetchExcelFileGestal('data', 'GESTAL.xlsx'));
-
-
+    loadButtonScp.addEventListener('click', () => fetchExcelFile('http://localhost:3000/api/file/scp/MANUTENÇAO_LOJAS_ATUALIZADA%200.1.xlsx'));
+    loadButtonSca.addEventListener('click', () => fetchExcelFile('http://localhost:3000/api/file/sca/CONTROLE%20DE%20ACESSO%20PREVENTIVA.xlsx'));
+    loadButtonSdai.addEventListener('click', () => fetchExcelFile('http://localhost:3000/api/file/sdai/PLANILHA%20ENDEREÇO%20ATUALIZADA%202024.xlsx'));
+    loadButtonGestal.addEventListener('click', () => fetchExcelFile('http://localhost:3000/api/file/gestal/RMF_CRL_GERAL_MEDICAO%20LOJAS_14_02_2024.xlsx'));
+    
     // Função para exibir os dados na tabela de cards
-    function displayData(sheetName, data) {
+    function displayData(data) {
         tableOutput.innerHTML = ''; // Limpa a saída anterior
         const headers = data[0]; // Cabeçalhos da tabela
-        console.log(data)
+        
         data.slice(1).forEach((row, i) => {
             const cardId = `card-${i + 1}`; // ID único para cada card
             const cardHTML = `
@@ -162,6 +77,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <h5 class="card-title">${row[0] !== undefined ? row[0] : ''}</h5>
                 <p class="card-text">${row[1] !== undefined ? row[1] : ''}</p>
                 <p class="card-text">${row[2] !== undefined ? row[2] : ''}</p>
+                <p class="card-text">${row[9] !== undefined ? row[9] : ''}</p>
                 <div class="d-grid gap-2">
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" data-card-index="${i + 1}">
                         Ver
@@ -207,7 +123,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // Evento de clique para o botão de editar no modal
     editButton.addEventListener('click', function () {
         modalBody.querySelectorAll('input[data-header-index]').forEach(input => {
-
             input.removeAttribute('readonly');
         });
         editButton.classList.add('d-none');
